@@ -18,7 +18,7 @@ const FormHojaCargo = ({ formData, data }) => {
 
     const [form, setForm] = useState(formData);
 
-    
+
     function createData(id, historia_clinica, nombre_apellidos, intervension, problema_salud, conducta) {
         return { id, historia_clinica, nombre_apellidos, intervension, problema_salud, conducta };
     }
@@ -45,22 +45,19 @@ const FormHojaCargo = ({ formData, data }) => {
     ]
 
 
-    const poblacions = data.poblacions
 
-    console.log(poblacions)
+    const poblacions = data.poblacions
 
     //filtro
     const ResultPoblacionAdmitida = poblacions?.filter(p => {
-        return (new Date(p.fecha_hojacargo) < fecha_start || p.fecha_hojacargo == null)
+        return (new Date(p.fecha_hojacargo) <= fecha_start || p.fecha_hojacargo == null)
     })
-
-    console.log(form)
 
     const [poblacionAdmitida, setPoblacionAdmitida] = useState(ResultPoblacionAdmitida);
 
     const autocompleteProps = {
         options: poblacionAdmitida,
-        getOptionLabel: (option) => option.nombre + ' ' + option.apellidos,
+        getOptionLabel: (option) => option.nombre + ' ' + option.apellidos + ' fecha: ' + option.fecha_hojacargo,
         value: form.poblacion,
         onChange: (event, newValue) => {
             setForm({
@@ -82,10 +79,6 @@ const FormHojaCargo = ({ formData, data }) => {
         })
     }
 
-    const FiltrarPoblacion = () => {
-        console.log('entre')
-        setPoblacionAdmitida(ResultPoblacionAdmitida)
-    }
 
     const handleSubmit = e => {
         e.preventDefault()
@@ -102,20 +95,40 @@ const FormHojaCargo = ({ formData, data }) => {
                 },
                 body: JSON.stringify(form)
             })
-            const data = await res.json();           
+            const data = await res.json();
 
             if (!data.success) {
                 const { errors } = useMessageError(data.error)
                 setMessage(errors)
             } else {
                 setMessage([])
-                const h = data.hojacargo
                 setRow([
                     ...row,
-                    createData(h._id, h.historia_clinica, `${h.poblacion.nombre} ${h.poblacion.apellidos}`, h.intervension, h.problema_salud, h.conducta)
+                    createData(
+                        data.hojacargo._id,
+                        data.hojacargo.historia_clinica,
+                        `${data.poblacion.nombre} ${data.poblacion.apellidos}`,
+                        data.hojacargo.intervension,
+                        data.hojacargo.problema_salud,
+                        data.hojacargo.conducta)
                 ])
                 setForm(formData)
-                FiltrarPoblacion()
+                setPoblacionAdmitida(poblacionAdmitida => {
+                     return poblacionAdmitida.map(obj => {
+                         if (obj._id != data.poblacion._id) {
+                             return {
+                                 ...obj, fecha_hojacargo: data.poblacion.fecha_hojacargo
+                             }
+                         }
+                         return obj
+                     })
+                 })
+                
+                setPoblacionAdmitida(poblacionAdmitida.filter((p) => {
+                    return (p._id !== data.poblacion._id)
+                }))
+
+                console.log(poblacionAdmitida)
             }
         } catch (error) {
             console.log(error)
@@ -144,6 +157,7 @@ const FormHojaCargo = ({ formData, data }) => {
                                             name="fecha_admitida"
                                             onChange={(handleChange) => {
                                                 setFechaStart(handleChange);
+                                                setPoblacionAdmitida(ResultPoblacionAdmitida)
                                             }}
                                             renderInput={(params) => <TextField {...params} />}
                                         />
@@ -152,11 +166,11 @@ const FormHojaCargo = ({ formData, data }) => {
                                 </LocalizationProvider>
                             </Grid>
 
-                            <Grid item  >
-                                <IconButton onClick={FiltrarPoblacion} color="secondary" aria-label="filtar población">
+                            {/*  <Grid item  >
+                                <IconButton onClick={() => setPoblacionAdmitida(ResultPoblacionAdmitida)} color="secondary" aria-label="filtar población">
                                     <SearchIcon />
                                 </IconButton>
-                            </Grid>
+                          </Grid>*/}
 
                         </Grid>
 
@@ -207,7 +221,7 @@ const FormHojaCargo = ({ formData, data }) => {
                                     fullWidth
                                     label="Escribe Problema de Salud"
                                     multiline
-                                    rows={4}
+                                    rows={2}
                                     //defaultValue=""
                                     name="problema_salud"
                                     value={form.problema_salud}
@@ -222,7 +236,7 @@ const FormHojaCargo = ({ formData, data }) => {
                                     label="Escribe la Conducta"
                                     multiline
                                     name="conducta"
-                                    rows={4}
+                                    rows={2}
                                     // defaultValue=""
                                     value={form.conducta}
                                     onChange={handleChange}
@@ -238,9 +252,9 @@ const FormHojaCargo = ({ formData, data }) => {
                                         value={form.intervension}
                                         onChange={handleChange}
                                     >
-                                        <FormControlLabel value="seguimiento_medico" control={<Radio />} label="Seguimiento Médico" />
-                                        <FormControlLabel value='terreno' control={<Radio />} label="Terreno" />
-                                        <FormControlLabel value='consulta' control={<Radio />} label="Consulta" />
+                                        <FormControlLabel value="Seguimiento Médico" control={<Radio />} label="Seguimiento Médico" />
+                                        <FormControlLabel value='Terreno' control={<Radio />} label="Terreno" />
+                                        <FormControlLabel value='Consulta' control={<Radio />} label="Consulta" />
 
 
                                     </RadioGroup>

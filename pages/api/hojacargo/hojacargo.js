@@ -1,6 +1,8 @@
 import conectarDB from 'lib/dbConnect'
 import HojaCargo from 'models/HojaCargo'
 import Poblacion from 'models/Poblacion'
+import Intervension from 'models/Intervension'
+import PoblacionIntervension from 'models/PoblacionIntervension'
 
 export default async function handler(req, res) {
 
@@ -25,8 +27,21 @@ export default async function handler(req, res) {
                             runValidators: true
                         }
                     ).lean()
+
+                    //obuscar Intervension
+                   // var objIntervension = await Intervension.find({ intervension: body.intervension })
+
+
+
+                    /*   const newIntervension = new Intervension({
+                           intervension: body.intervension
+                       })
+                       await newIntervension.save();
+                       await new PoblacionIntervension({ intervension: newIntervension, poblacion: poblacion })
+                    */
+
                 }
-                return res.status(200).json({ success: true, hojacargo: hojacargo, poblacion: poblacion });
+                return res.status(200).json({ success: true, hojacargo: hojacargo, poblacion: poblacion, log: objIntervension });
 
             } catch (error) {
                 return res
