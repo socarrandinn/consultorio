@@ -81,8 +81,13 @@ const FormConsultorioMedico = ({ formData, accion = true, consultorios }) => {
                     ['numero']: '',
                     ['nombre']: ''
 
-                })
+                })                
                 setOpen(false)
+                setMessage([{
+                    message: 'Datos guardados correctamente',
+                    path: '',
+                    tipo_error: 'success'
+                }])
             }
 
         } catch (error) {
@@ -143,10 +148,10 @@ const FormConsultorioMedico = ({ formData, accion = true, consultorios }) => {
 
 
                         {
-                            message.map(({ message }) => (
+                            message.map(({ message, tipo_error }) => (
 
                                 <MensageError
-                                    tipoError='error'
+                                    tipoError={tipo_error}
                                     message={message}
                                     vertical='top'
                                     horizontal='right'

@@ -10,7 +10,8 @@ export const useMessageError = (props) => {
                     ...errors,
                     {
                         message: `Ya existe la/el ${Object.keys(props.keyValue)}`,
-                        path: Object.keys(props.keyValue)
+                        path: Object.keys(props.keyValue),
+                        tipo_error: 'error'
                     }
                 ]
             }
@@ -25,7 +26,8 @@ export const useMessageError = (props) => {
                     ...errors,
                     {
                         message: error.message,
-                        path: error.path
+                        path: error.path,
+                        tipo_error: 'error'
                     }
                 ]
             }else if(error.kind == 'ObjectId'){
@@ -33,7 +35,8 @@ export const useMessageError = (props) => {
                     ...errors,
                     {
                         message: `Selecione el/la ${error.path}`,
-                        path: error.path
+                        path: error.path,
+                        tipo_error: 'error'
                     }
                 ]    
             }

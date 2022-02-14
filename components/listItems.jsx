@@ -44,6 +44,14 @@ export const secondaryListItems = (
         <ListItemText primary="Intervensión" />
       </ListItem>
     </Link>   
+    <Link href="/factorriesgo/new">
+      <ListItem button>
+        <ListItemIcon>
+          <AssignmentIcon />
+        </ListItemIcon>
+        <ListItemText primary="Factor Riesgos" />
+      </ListItem>
+    </Link> 
     <Link href="/enfermedad/new">
       <ListItem button>
         <ListItemIcon>

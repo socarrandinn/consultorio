@@ -6,9 +6,9 @@ const TextAutoComplete = ({ label, defaultProps, noOptionsText }) => {
 
     return <Autocomplete
 
-        disablePortal      
+        disablePortal
         sx={{ width: '300' }}
-        {... defaultProps}
+        {...defaultProps}
         isOptionEqualToValue={(option, value) =>
             option.name === value.name
         }
@@ -16,7 +16,7 @@ const TextAutoComplete = ({ label, defaultProps, noOptionsText }) => {
             (params) => <TextField {...params} label={label} />
         }
         noOptionsText={noOptionsText}
-    // renderOption={(props, lists) => ()}
+        
     />;
 };
 

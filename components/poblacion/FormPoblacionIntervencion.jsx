@@ -1,10 +1,8 @@
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 
 import { useState } from "react";
-import { useRouter } from 'next/dist/client/router';
-import { Alert, Stack, TextField, Typography } from '@mui/material';
+import {Stack, TextField, Typography } from '@mui/material';
 
 import TextAutoComplete from 'components/TextAutoComplete'
 import Table from 'components/Table'
@@ -12,12 +10,16 @@ import Table from 'components/Table'
 import { LocalizationProvider, MobileDatePicker } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 
+import BackdropProgress from 'components/Alert/BackdropProgress';
 
-//hooks
+import MensageError from 'components/MensageError';
+import { useMessageError } from 'hooks/useMessageError';
 
-const FormIntervencionPoblacion = ({ formData }) => {
+const FormPoblacionIntervension = ({ formData }) => {
 
     const [desactivado, setDesactivado] = useState(true);
+    const [open, setOpen] = useState(false)
+
     const [form, setForm] = useState({
         poblacion: formData.poblacion,
         intervension: null,
@@ -29,7 +31,7 @@ const FormIntervencionPoblacion = ({ formData }) => {
     }
     const rows = []
     formData.intervensions.map((r) => {
-        rows.push(createData(r._id, r.intervension.intervension, r.fecha))
+        rows.push(createData(r._id, r.intervension.intervension, new Date(r.fecha).toLocaleDateString()))
     })
 
     const [row, setRow] = useState(rows);
@@ -66,7 +68,7 @@ const FormIntervencionPoblacion = ({ formData }) => {
         setMessage([])
 
         try {
-            console.log(form)
+            setOpen(true)
             const res = await fetch('/api/poblacionintervension/poblacionintervension', {
                 method: 'POST',
                 headers: {
@@ -79,13 +81,10 @@ const FormIntervencionPoblacion = ({ formData }) => {
                 })
             })
             const data = await res.json();
-
-            console.log(data)
             if (!data.success) {
-                console.log(data.error)
                 const { errors } = useMessageError(data.error)
-
                 setMessage(errors)
+                setOpen(false)
             } else {
                 setMessage([])
                 setDesactivado(true)
@@ -97,6 +96,12 @@ const FormIntervencionPoblacion = ({ formData }) => {
                     ...form,
                     ['intervension']: null
                 })
+                setOpen(false)
+                setMessage([{
+                    message: 'Datos guardados correctamente',
+                    path: '',
+                    tipo_error: 'success'
+                }])
             }
 
         } catch (error) {
@@ -107,6 +112,7 @@ const FormIntervencionPoblacion = ({ formData }) => {
 
     return (
         <>
+            <BackdropProgress open={open} />
             <form onSubmit={handleSubmit}>
 
                 <Stack m={2} justifyContent="center" alignItems="center">
@@ -153,13 +159,16 @@ const FormIntervencionPoblacion = ({ formData }) => {
                             <Button disabled={desactivado === true} type='submit' variant="contained"> + Adicionar </Button>
                         </Grid>
                         <Grid item xs={12} md={12}>
-                            <Stack sx={{ width: '100%' }} spacing={1}>
-                                {
-                                    message.map(({ message }) => (
-                                        <Alert severity="error">{message}</Alert>
-                                    ))
-                                }
-                            </Stack>
+                            {
+                                message.map(({ message, tipo_error }) => (
+
+                                    <MensageError
+                                        tipoError={tipo_error}
+                                        message={message}
+                                    />
+
+                                ))
+                            }
                         </Grid>
                     </Grid>
 
@@ -185,4 +194,4 @@ const FormIntervencionPoblacion = ({ formData }) => {
     )
 }
 
-export default FormIntervencionPoblacion 
+export default FormPoblacionIntervension 

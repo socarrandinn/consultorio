@@ -15,7 +15,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Head from 'next/head';
 
 import { useState } from 'react';
-import { mainListItems, secondaryListItems } from './listItems';
+import { mainListItems, secondaryListItems } from 'components/listItems';
 
 import { ApiProvider } from 'context/ApiContext';
 

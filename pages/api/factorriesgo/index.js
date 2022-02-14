@@ -1,18 +1,17 @@
 import conectarDB from 'lib/dbConnect'
-import Poblacion from 'models/Poblacion'
+import FactorRiesgo from 'models/FactorRiesgo'
 
 export default async function handler(req, res) {
 
     await conectarDB()
-
+    
     const { method, query: { id } } = req
-    switch (method) {
+    switch (method) {        
         case 'GET':
             try {
                 if (!id) {
-                    const poblacions = await Poblacion.find({ isbaja: false }).populate('calle').lean()
-
-                    return res.status(200).json({ success: true, data: poblacions })
+                    const factorriesgos = await FactorRiesgo.find({})
+                    return res.status(200).json({ success: true, data: factorriesgos })
                 }
             } catch (error) {
                 return res.status(404).json({ success: false })

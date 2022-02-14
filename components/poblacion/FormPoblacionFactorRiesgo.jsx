@@ -12,39 +12,41 @@ import MensageError from 'components/MensageError';
 import { useMessageError } from 'hooks/useMessageError';
 
 
-const FormPoblacionEnfermedad = ({ formData }) => {
+const FormPoblacionFactorRiesgo = ({ formData }) => {
 
     const [desactivado, setDesactivado] = useState(true);
     const [open, setOpen] = useState(false)
 
     const [form, setForm] = useState({
         _id: formData.poblacion._id,
-        enfermedad: null
+        factor_riesgo: null
     });
 
-    function createData(id, enfermedad) {
-        return { id, enfermedad };
+    console.log(formData)
+
+    function createData(id, factor_riesgo) {
+        return { id, factor_riesgo };
     }
     const rows = []
-    formData.enfermedads.map((r) => {
-        rows.push(createData(r._id, r.enfermedad))
+    formData.factor_riesgos?.map((r) => {
+        rows.push(createData(r._id, r.factor_riesgo))
     })
 
     const [row, setRow] = useState(rows);
 
     const column = [
         { field: 'id', headerName: 'ID', width: 40 },
-        { field: 'enfermedad', headerName: 'Enfermedad', width: 250, type: 'string' }
+        { field: 'factor_riesgo', headerName: 'Factor de Riesgo', width: 250, type: 'string' }
     ]
 
     const autocompleteProps = {
-        options: formData.enfermedad,
-        getOptionLabel: (option) => option.enfermedad,
-        value: form.enfermedad,
+        options: formData.factor_riesgo,
+        getOptionLabel: (option) => option.factor_riesgo,
+        value: form.factor_riesgo,
         onChange: (event, newValue) => {
             setForm({
                 ...form,
-                ['enfermedad']: newValue
+                ['factor_riesgo']: newValue
             })
             setDesactivado(desactivado = (newValue === null) ? true : false)
         }
@@ -54,15 +56,15 @@ const FormPoblacionEnfermedad = ({ formData }) => {
 
     const handleSubmit = e => {
         e.preventDefault()
-        putData(form)
+        postData(form)
     }
 
 
-    const putData = async (form) => {
+    const postData = async (form) => {
         setMessage([])
         try {
             setOpen(true)
-            const res = await fetch('/api/poblacion/enfermedad', {
+            const res = await fetch('/api/poblacion/factorriesgo', {
                 method: 'POST',
                 headers: {
                     "Content-type": "application/json"
@@ -79,11 +81,11 @@ const FormPoblacionEnfermedad = ({ formData }) => {
                 setDesactivado(true)
                 setRow([
                     ...row,
-                    data.newEnfermedad
+                    data.newFactorRiesgo
                 ])
                 setForm({
                     ...form,
-                    ['enfermedad']: null
+                    ['factor_riesgo']: null
                 })
 
                 setOpen(false)
@@ -109,7 +111,7 @@ const FormPoblacionEnfermedad = ({ formData }) => {
                     <Grid container pb={2} pt={2} spacing={2} justifyContent="center" alignItems="center">
                         <Grid item>
                             <Typography variant="h5" component="div">
-                                Listado de Enfermadad
+                                Factores de Riesgos
                             </Typography>
                         </Grid>
                     </Grid>
@@ -118,7 +120,7 @@ const FormPoblacionEnfermedad = ({ formData }) => {
 
                         <Grid item xs={12} md={12}>
                             <TextAutoComplete
-                                label='Enfermedades'
+                                label='Factor de Riesgos'
                                 defaultProps={autocompleteProps}
                             />
                         </Grid>
@@ -165,4 +167,4 @@ const FormPoblacionEnfermedad = ({ formData }) => {
     )
 }
 
-export default FormPoblacionEnfermedad 
+export default FormPoblacionFactorRiesgo 

@@ -68,8 +68,8 @@ const FormIntervension = ({ formData, accion = true, enfermedads }) => {
                 setOpen(false)
                 const { errors } = useMessageError(data.error)
                 setMessage(errors)
-            } else { 
-                 
+            } else {
+
                 setRow([
                     ...row,
                     createData(data.enfermedad._id, data.enfermedad.enfermedad)
@@ -79,6 +79,11 @@ const FormIntervension = ({ formData, accion = true, enfermedads }) => {
                     ['enfermedad']: ''
                 })
                 setOpen(false)
+                setMessage([{
+                    message: 'Datos guardados correctamente',
+                    path: '',
+                    tipo_error: 'success'
+                }])
             }
 
         } catch (error) {
@@ -90,7 +95,7 @@ const FormIntervension = ({ formData, accion = true, enfermedads }) => {
     return (
         <>
             <BackdropProgress open={open} />
-            
+
             <form onSubmit={handleSubmit}>
 
                 <Grid container spacing={2} justifyContent="center" alignItems="center">
@@ -119,10 +124,10 @@ const FormIntervension = ({ formData, accion = true, enfermedads }) => {
 
 
                         {
-                            message.map(({ message }) => (
+                            message.map(({ message, tipo_error }) => (
 
                                 <MensageError
-                                    tipoError='error'
+                                    tipoError={tipo_error}
                                     message={message}
                                     vertical='top'
                                     horizontal='right'

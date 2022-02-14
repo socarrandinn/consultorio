@@ -14,6 +14,11 @@ const PoblacionSchema = new mongoose.Schema({
         type: Date,
         required: [true, "Por favor selecione la fecha de nacimiento"],
     },
+    edad: {
+        type: String,
+        required: [true, "Por favor ingrese la edad"],
+
+    },
     sexo: {
         type: String,
         required: [true, "Por favor selecione el sexo"],
@@ -47,6 +52,12 @@ const PoblacionSchema = new mongoose.Schema({
             ref: 'Enfermedad'
         }
     ],
+    factor_riesgos: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: 'FactorRiesgo'
+        }
+    ],
     intervensions: [
         {
             type: mongoose.Types.ObjectId,
@@ -56,8 +67,18 @@ const PoblacionSchema = new mongoose.Schema({
     fecha_hojacargo: {
         type: Date,
         default: null
-    }   
+    },
+    isbaja: {
+        type: Boolean,
+        default: false
+
+    },
+    grupo_dispensarial: {
+        type: String,
+        required: [true, "Por favor selecione Grupo Dispensarial"],
+    }
 
 })
 
 export default mongoose.models.Poblacion || mongoose.model('Poblacion', PoblacionSchema)
+

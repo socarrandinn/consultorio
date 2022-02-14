@@ -24,7 +24,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "pages/usuario/usuarios.jsx"  ],
+, "pages/usuario/usuarios.jsx", "components/listItems.jsx"  ],
   "exclude": [
     "node_modules"
   ]

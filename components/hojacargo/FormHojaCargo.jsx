@@ -2,14 +2,14 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 
 import { useState } from "react";
-import { Alert, Divider, FormControl, FormControlLabel, FormLabel, Hidden, IconButton, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Chip, Divider, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 
 import TextAutoComplete from 'components/TextAutoComplete'
 import Table from 'components/Table'
 import { LocalizationProvider, MobileDatePicker } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import MensageError from 'components/MensageError';
+import BackdropProgress from 'components/Alert/BackdropProgress';
 
 //hooks
 import { useMessageError } from 'hooks/useMessageError';
@@ -17,6 +17,7 @@ import { useMessageError } from 'hooks/useMessageError';
 const FormHojaCargo = ({ formData, data }) => {
 
     const [form, setForm] = useState(formData);
+    const [open, setOpen] = useState(false);
 
 
     function createData(id, historia_clinica, nombre_apellidos, intervension, problema_salud, conducta) {
@@ -29,12 +30,6 @@ const FormHojaCargo = ({ formData, data }) => {
 
     const [row, setRow] = useState(rows);
 
-    const fecha_fin = new Date()
-    const fecha_inicio = fecha_fin.setMonth(fecha_fin.getMonth() - 4)
-
-    const [fecha_end, setFechaEnd] = useState(new Date());
-    const [fecha_start, setFechaStart] = useState(fecha_inicio);
-
     const column = [
         { field: 'id', headerName: 'ID', width: 50, type: 'string' },
         { field: 'historia_clinica', headerName: 'No. Historia Clínica', width: 150, type: 'string' },
@@ -44,7 +39,12 @@ const FormHojaCargo = ({ formData, data }) => {
         { field: 'conducta', headerName: 'Conducta', width: 300, type: 'string' }
     ]
 
+    
+    const fecha_fin = new Date()
+    const fecha_inicio = fecha_fin.setMonth(fecha_fin.getMonth() - 4)
 
+    const [fecha_end, setFechaEnd] = useState(new Date());
+    const [fecha_start, setFechaStart] = useState(fecha_inicio);
 
     const poblacions = data.poblacions
 
@@ -57,14 +57,33 @@ const FormHojaCargo = ({ formData, data }) => {
 
     const autocompleteProps = {
         options: poblacionAdmitida,
-        getOptionLabel: (option) => option.nombre + ' ' + option.apellidos + ' fecha: ' + option.fecha_hojacargo,
+        getOptionLabel: (option) => `${option.nombre} ${option.apellidos}`,
         value: form.poblacion,
         onChange: (event, newValue) => {
             setForm({
                 ...form,
                 ['poblacion']: newValue
             })
-        }
+        },
+        renderOption: (props, option) => (
+            <Box {...props}>
+                {option.nombre} {option.apellidos}
+                <Stack ml={1}>
+                    <Chip label={option.fecha_hojacargo != null ? new Date(option.fecha_hojacargo).toLocaleDateString() : 'none'} color={option.fecha_hojacargo != null ? 'primary' : 'error'} size="small" />
+                </Stack>
+            </Box>
+
+        ),
+        renderInput: (params) => (
+            <TextField
+                {...params}
+                label="Selecione la Población"
+                inputProps={{
+                    ...params.inputProps,
+                    autoComplete: 'new-password', // disable autocomplete and autofill
+                }}
+            />
+        )
     };
 
 
@@ -88,6 +107,7 @@ const FormHojaCargo = ({ formData, data }) => {
     const postData = async (form) => {
         setMessage([])
         try {
+            setOpen(true)
             const res = await fetch('/api/hojacargo/hojacargo', {
                 method: 'POST',
                 headers: {
@@ -98,6 +118,7 @@ const FormHojaCargo = ({ formData, data }) => {
             const data = await res.json();
 
             if (!data.success) {
+                setOpen(false)
                 const { errors } = useMessageError(data.error)
                 setMessage(errors)
             } else {
@@ -114,21 +135,26 @@ const FormHojaCargo = ({ formData, data }) => {
                 ])
                 setForm(formData)
                 setPoblacionAdmitida(poblacionAdmitida => {
-                     return poblacionAdmitida.map(obj => {
-                         if (obj._id != data.poblacion._id) {
-                             return {
-                                 ...obj, fecha_hojacargo: data.poblacion.fecha_hojacargo
-                             }
-                         }
-                         return obj
-                     })
-                 })
-                
+                    return poblacionAdmitida.map(obj => {
+                        if (obj._id != data.poblacion._id) {
+                            return {
+                                ...obj, fecha_hojacargo: data.poblacion.fecha_hojacargo
+                            }
+                        }
+                        return obj
+                    })
+                })
+
                 setPoblacionAdmitida(poblacionAdmitida.filter((p) => {
                     return (p._id !== data.poblacion._id)
                 }))
+                setOpen(false)
 
-                console.log(poblacionAdmitida)
+                setMessage([{
+                    message: 'Datos guardados correctamente',
+                    path: '',
+                    tipo_error: 'success'
+                }])
             }
         } catch (error) {
             console.log(error)
@@ -137,6 +163,7 @@ const FormHojaCargo = ({ formData, data }) => {
 
     return (
         <>
+            <BackdropProgress open={open} />
             <form onSubmit={handleSubmit}>
 
                 <Stack justifyContent="center" alignItems="center">
@@ -274,9 +301,9 @@ const FormHojaCargo = ({ formData, data }) => {
                                 <Stack sx={{ width: '100%' }} spacing={1}>
                                     {
 
-                                        message.map(({ message }) => (
+                                        message.map(({ message, tipo_error }) => (
                                             <MensageError
-                                                tipoError='error'
+                                                tipoError={tipo_error}
                                                 message={message}
                                             />
                                         ))

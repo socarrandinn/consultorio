@@ -10,6 +10,7 @@ import { LocalizationProvider, MobileDatePicker } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import TextAutoComplete from 'components/TextAutoComplete';
 import MensageError from 'components/MensageError';
+import BackdropProgress from 'components/Alert/BackdropProgress';
 
 //hooks
 import { useMessageError } from 'hooks/useMessageError';
@@ -19,7 +20,20 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
     const router = useRouter()
 
     const [form, setForm] = useState(formData);
+    const [open, setOpen] = useState(false);
 
+    console.log(form)
+
+    const calcular_edad = (fecha_nacimiento) => {
+        const hoy = new Date()
+        const fecha = new Date(fecha_nacimiento)
+        const edad = (hoy.getFullYear() - fecha.getFullYear())
+        const mes = (hoy.getMonth() - fecha.getMonth())
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fecha.getDate())) {
+            edad--
+        }
+        return edad
+    }
 
     const autocompleteCalle = {
         options: calles,
@@ -55,11 +69,23 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
 
     const handleChange = e => {
         const { value, name } = e.target
-        setForm({
-            ...form,
-            [name]: value
-        })
+        if (name === 'fecha_nacimiento') {
+            setForm({
+                ...form,
+                [name]: value,
+                ['edad']: calcular_edad(value)
+            })
+
+        } else {
+            setForm({
+                ...form,
+                [name]: value
+            })
+        }
+
     }
+
+
 
     const handleSubmit = e => {
         e.preventDefault()
@@ -74,7 +100,7 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
         setMessage([])
         const { id } = router.query
         try {
-            console.log(form)
+            setOpen(true)
             const res = await fetch('/api/poblacion/' + id, {
                 method: 'PUT',
                 headers: {
@@ -84,21 +110,27 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
             })
             const data = await res.json();
             if (!data.success) {
+                setOpen(false)
                 const { errors } = useMessageError(data.error)
                 setMessage(errors)
+
             } else {
                 setMessage([])
-                router.push('/poblacion')
+                setOpen(false)
+                setForm(formData)
+                //router.push('/poblacion')
             }
 
         } catch (error) {
             console.log(error)
+
         }
     }
-    
+
     const postData = async (form) => {
         setMessage([])
         try {
+            setOpen(true)
             const res = await fetch('/api/poblacion/poblacion', {
                 method: 'POST',
                 headers: {
@@ -106,13 +138,21 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
                 },
                 body: JSON.stringify(form)
             })
-            const data = await res.json();            
+            const data = await res.json();
             if (!data.success) {
-                const { errors } = useMessageError(data.error)                
+                setOpen(false)
+                const { errors } = useMessageError(data.error)
                 setMessage(errors)
+
             } else {
-                setMessage([])
-                router.push('/poblacion')
+                setMessage([{
+                    message: 'Datos guardados correctamente',
+                    path: '',
+                    tipo_error: 'success'
+                }])
+                setOpen(false)
+                setForm(formData)
+                // router.push('/poblacion')
             }
 
         } catch (error) {
@@ -122,6 +162,7 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
 
     return (
         <>
+            <BackdropProgress open={open} />
             <form onSubmit={handleSubmit}>
 
                 <Stack justifyContent="center" alignItems="center">
@@ -174,6 +215,10 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
                                             name="fecha_nacimiento"
                                             onChange={(handleChange) => {
                                                 setFecha(handleChange);
+                                                setForm({
+                                                    ...form,
+                                                    ['edad']: calcular_edad(form.fecha_nacimiento)
+                                                })
                                             }}
                                             renderInput={(params) => <TextField {...params} />}
                                         />
@@ -192,8 +237,27 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
                                         label="Sexo"
                                         onChange={handleChange}
                                     >
-                                        <MenuItem value={"F"}>Femenino</MenuItem>
-                                        <MenuItem value={"M"}>Masculino</MenuItem>
+                                        <MenuItem value={"Femenino"}>Femenino</MenuItem>
+                                        <MenuItem value={"Masculino"}>Masculino</MenuItem>
+
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6} md={4}>
+                                <FormControl fullWidth>
+                                    <InputLabel id="select-grupo_dispensarial-label">Grupo</InputLabel>
+                                    <Select
+                                        labelId="select-grupo_dispensarial-label"
+                                        id="select-grupo-dispensarial"
+                                        name="grupo_dispensarial"
+                                        value={form.grupo_dispensarial}
+                                        label="Grupo Dispensarial"
+                                        onChange={handleChange}
+                                    >
+                                        <MenuItem value={"Grupo I"}>Grupo I</MenuItem>
+                                        <MenuItem value={"Grupo II"}>Grupo II</MenuItem>
+                                        <MenuItem value={"Grupo III"}>Grupo III</MenuItem>
+                                        <MenuItem value={"Grupo IV"}>Grupo IV</MenuItem>
 
                                     </Select>
                                 </FormControl>
@@ -246,18 +310,18 @@ const FormPoblacion = ({ formData, accion = true, calles = [], consultorios = []
                     </Grid>
 
 
-                    <Grid pt={2} container spacing={2} justifyContent="center" alignItems="center">
+                    <Grid pt={2} container justifyContent="center" alignItems="center">
 
-                        <Grid item xs={12} md={6} >
+                        <Grid item xs={12} md={12} >
                             <Button variant="contained" onClick={handleSubmit}>+ Adicionar</Button>
                         </Grid>
                         <Grid item xs={12} md={12}>
                             <Stack sx={{ width: '100%' }} spacing={1}>
                                 {
 
-                                    message.map(({ message }) => (
+                                    message.map(({ message, tipo_error }) => (
                                         <MensageError
-                                            tipoError='error'
+                                            tipoError= {tipo_error}
                                             message={message}
                                         />
                                     ))

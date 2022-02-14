@@ -25,7 +25,7 @@ export default async function handler(req, res) {
                 const newIntervension = {
                     id: poblacionintrevension._id,
                     intervension: body.intervension.intervension, 
-                    fecha:body.fecha    
+                    fecha: new Date(body.fecha).toLocaleDateString()   
                 }
 
                 return res.status(200).json({ success: true, newIntervension });

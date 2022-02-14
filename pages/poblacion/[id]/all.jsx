@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 
 import FormPoblacionIntervencion from "components/poblacion/FormPoblacionIntervencion";
 import FormPoblacionEnfermedad from "components/poblacion/FormPoblacionEnfermedad";
+import FormPoblacionFactorRiesgo from "components/poblacion/FormPoblacionFactorRiesgo";
 
 import { useApiSWR } from "hooks/useApiSWR";
 
@@ -24,7 +25,7 @@ const all = () => {
   if (isError) {
     return <Box sx={{ display: "flex" }}>error</Box>;
   }
-  
+
   if (isLoading) {
     return (
       <Drawer title=" Población" description="-" asunto="Población">
@@ -35,32 +36,39 @@ const all = () => {
     );
   }
 
-  console.log(data)
-
-
   return (
     <Drawer title=" Población" description="-" asunto="Población">
       <Box md={2} sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-        
-        <Grid item xs={12} md={6}>
+
+       <Grid item xs={12} md={6}>
             <Paper elevation={3}>
-              <FormPoblacionEnfermedad               
+              <FormPoblacionEnfermedad
                 formData={data}
               />
             </Paper>
-            
+
           </Grid>
 
         
-           
+  
           <Grid item xs={12} md={6} >
             <Paper elevation={3}>
-              <FormPoblacionIntervencion               
+              <FormPoblacionIntervencion
+                formData={data}
+              />
+            </Paper>
+          </Grid>  
+
+          <Grid item xs={12} md={6} >
+            <Paper elevation={3}>
+              <FormPoblacionFactorRiesgo
                 formData={data}
               />
             </Paper>
           </Grid>
+
+
         </Grid>
       </Box>
     </Drawer>

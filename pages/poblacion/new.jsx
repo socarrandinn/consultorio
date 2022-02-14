@@ -19,7 +19,9 @@ const New = ({direcciones,consultorios}) => {
         no_vivienda: '',
         no_nucleo: '',
         calle: '',
-        consultorio: ''
+        consultorio: '',
+        edad: '',
+        grupo_dispensarial: ''
     }
     return (
         <Drawer

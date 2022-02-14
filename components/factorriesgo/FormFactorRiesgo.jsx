@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 
 import { useState } from "react";
-import { useRouter } from 'next/dist/client/router';
 import { Typography } from '@mui/material';
 
 import Table from "components/Table"
@@ -11,20 +10,19 @@ import MensageError from 'components/MensageError';
 import { useMessageError } from 'hooks/useMessageError';
 import BackdropProgress from 'components/Alert/BackdropProgress';
 
-const FormIntervension = ({ formData, accion = true, intervensiones }) => {
-    const router = useRouter()
+const FormFactorRiesgo = ({ formData, factorriesgos }) => {
 
     const [form, setForm] = useState(formData);
     const [open, setOpen] = useState(false);
 
     const [message, setMessage] = useState([])
 
-    function createData(id, intervension) {
-        return { id, intervension };
+    function createData(id, factor_riesgo) {
+        return { id, factor_riesgo };
     }
     const rows = []
-    intervensiones.map((r) => {
-        rows.push(createData(r._id, r.intervension))
+    factorriesgos.map((r) => {
+        rows.push(createData(r._id, r.factor_riesgo))
     })
     const [row, setRow] = useState(rows);
 
@@ -32,7 +30,7 @@ const FormIntervension = ({ formData, accion = true, intervensiones }) => {
 
     const column = [
         { field: 'id', headerName: 'ID', width: 40 },
-        { field: 'intervension', headerName: 'Intervensión', width: 400, type: 'string' }
+        { field: 'factor_riesgo', headerName: 'Factor Riesgo', width: 400, type: 'string' }
     ]
 
 
@@ -47,18 +45,14 @@ const FormIntervension = ({ formData, accion = true, intervensiones }) => {
 
     const handleSubmit = e => {
         e.preventDefault()
-        if (accion) {
-            postData(form)
-        } else {
-            putData(form)
-        }
+        postData(form)
     }
 
     const postData = async (form) => {
         setMessage([])
         try {
             setOpen(true)
-            const res = await fetch('/api/intervension/intervension', {
+            const res = await fetch('/api/factorriesgo/factorriesgo', {
                 method: 'POST',
                 headers: {
                     "Content-type": "application/json"
@@ -73,11 +67,11 @@ const FormIntervension = ({ formData, accion = true, intervensiones }) => {
             } else {  
                 setRow([
                     ...row,
-                    createData(data.intervension._id, data.intervension.intervension)
+                    createData(data.factorriesgo._id, data.factorriesgo.factor_riesgo)
                 ])
                 setForm({
                     ...form,
-                    ['intervension']: ''
+                    ['factor_riesgo']: ''
                 })
                 setOpen(false)
                 setMessage([{
@@ -102,14 +96,14 @@ const FormIntervension = ({ formData, accion = true, intervensiones }) => {
 
                     <Grid item xs={12} md={6}>
                         <Typography variant="h4" mb={2} component="div">
-                            Listado de Intervensiones
+                            Listado de Factores de Riesgos
                         </Typography>
                         <TextField
                             fullWidth
-                            label="Escribe el tipo de intervensión"
-                            placeholder="Intervensión"
-                            name="intervension"
-                            value={form.intervension}
+                            label="Escribe el factor de riesgo"
+                            placeholder="Factor de Riesgo"
+                            name="factor_riesgo"
+                            value={form.factor_riesgo}
                             onChange={handleChange}
                         />
                     </Grid>
@@ -155,4 +149,4 @@ const FormIntervension = ({ formData, accion = true, intervensiones }) => {
     )
 }
 
-export default FormIntervension 
+export default FormFactorRiesgo 
